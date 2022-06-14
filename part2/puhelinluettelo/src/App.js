@@ -9,10 +9,9 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilterName] = useState('')
-  const [foundNames, setFoundNames] = useState(persons)
+
 
   useEffect(() => {
-    console.log('effect')
     axios
     .get('http://localhost:3001/persons')
     .then(response => {
@@ -23,17 +22,22 @@ const App = () => {
   const addName =(event) => {
     event.preventDefault()
     const sameName = persons.filter(person => person.name === newName).length
+    
 
     if(sameName > 0) {
       alert(`${newName} is already added to phonebook`)
     }
     else{   
       const nameObject = {name: newName, number: newNumber}
-      setPersons(persons.concat(nameObject))
+
+      axios
+    .post('http://localhost:3001/persons', nameObject)
+    .then(response => {
+      setPersons(persons.concat(response.data))
       setNewName('')
       setNewNumber('')
+    })
     }
-    
   }
 
   const handleNameChange = (event) => {
@@ -54,11 +58,15 @@ const App = () => {
       const results = persons.filter((name) => {
         return name.name.toLowerCase().startsWith(keyword.toLowerCase())
       })
-      setFoundNames(results)
+      setPersons(results)
     }
     else {
-      
-      setFoundNames(persons)
+      axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+
+      })
     }
     
 
@@ -72,7 +80,7 @@ const App = () => {
       <h3>Add a new person</h3>
      <PersonForm newName = {newName} newNumber={newNumber} addName={addName} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange}/>
       <h3>Numbers</h3>
-      <Persons persons={foundNames}  />
+      <Persons persons={persons}  />
     </div>
   )
 

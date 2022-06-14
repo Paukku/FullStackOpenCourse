@@ -29,13 +29,23 @@ const App = () => {
       
       setFoundCountry([])
     }
-
   } 
+
+  const showCountry = (event) => {
+    event.preventDefault()
+    console.log(event.target.value)
+    const keyword = event.target.value
+    const a = foundCountry.filter((country) => {
+      return country.name.common === keyword
+    })
+    setFoundCountry(a)
+}
+
   return (
     <div className="App">
      <Find findCountry={findCountry} handleFindCountry={handleFindCountry}/>
      {foundCountry.length > 10 ? "Too many matches, specify another filter" :
-     <Results foundCountry={foundCountry} />
+     <Results foundCountry={foundCountry} showCountry={showCountry} />
      }
     </div>
   )
