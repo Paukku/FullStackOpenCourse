@@ -1,8 +1,7 @@
 import Languages from "./Languages"
+import Weather from "./Weather"
 
-const Results = ({foundCountry}) => {
-
-    console.log(foundCountry)
+const Results = ({foundCountry, showCountry}) => {
     return(
         <div>
             {foundCountry.length === 1 ?
@@ -13,11 +12,15 @@ const Results = ({foundCountry}) => {
                     <p>Area {country.area}</p>
                     <h2>Languages</h2>
                     <Languages languages={country.languages} />
-                    <img src={country.flags.png} />
+                    <img src={country.flags.png} alt="country flag" />
+                    <Weather capit={country.capital}/>
                 </div>
              )
              :
-             foundCountry.map((country, index) => <div key={index}>{country.name.common}</div> )
+             foundCountry.map((country, index) => 
+             <div key={index}>{country.name.common} 
+             <button value={country.name.common} onClick={showCountry}>show</button></div> 
+             )
              }
         </div>
     )
