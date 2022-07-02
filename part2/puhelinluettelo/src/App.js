@@ -3,6 +3,7 @@ import Persons from './Persons'
 import PersonForm from './PersonForm'
 import Filter from './Filter'
 import axios from 'axios'
+import NumberService from './NumberService'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -12,10 +13,10 @@ const App = () => {
 
 
   useEffect(() => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      setPersons(response.data)
+    NumberService
+    .getAll()
+    .then(phoneNumbers => {
+      setPersons(phoneNumbers)
     })
   }, [])
 
@@ -25,18 +26,43 @@ const App = () => {
     
 
     if(sameName > 0) {
-      alert(`${newName} is already added to phonebook`)
+      if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const nameObject = {name: newName, number: newNumber}
+        const id = persons.filter((person) => person.name === newName)
+        .map(person => person.id)
+
+        NumberService
+        .update(id, nameObject)
+        .then(phoneNumbers => {
+          console.log(newName)
+          setPersons(persons.map(person => person.name !== newName ? person : phoneNumbers))
+          setNewName('')
+          setNewNumber('')
+        })
+      }
     }
     else{   
       const nameObject = {name: newName, number: newNumber}
 
-      axios
-    .post('http://localhost:3001/persons', nameObject)
-    .then(response => {
-      setPersons(persons.concat(response.data))
+      NumberService
+    .create(nameObject)
+    .then(returnedNumbers => {
+      setPersons(persons.concat(returnedNumbers))
       setNewName('')
       setNewNumber('')
     })
+    }
+  }
+
+  const deleteName = (event) => {
+    const value = parseInt(event.target.value)    
+    const name = persons.filter(search => search.id === value).map(filt => filt.name)
+    
+    if(window.confirm(`Delete ${name}?`)) {
+      NumberService.deletePerson(value)
+      .then(() => {
+        setPersons(persons.filter((person) => person.id !== value))
+      })
     }
   }
 
@@ -61,10 +87,10 @@ const App = () => {
       setPersons(results)
     }
     else {
-      axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+      NumberService
+      .getAll()
+      .then(returnedNumbers => {
+        setPersons(returnedNumbers)
 
       })
     }
@@ -80,7 +106,7 @@ const App = () => {
       <h3>Add a new person</h3>
      <PersonForm newName = {newName} newNumber={newNumber} addName={addName} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange}/>
       <h3>Numbers</h3>
-      <Persons persons={persons}  />
+      <Persons persons={persons} deleteName={deleteName}  />
     </div>
   )
 
