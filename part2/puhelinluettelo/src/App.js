@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react'
 import Persons from './Persons'
 import PersonForm from './PersonForm'
 import Filter from './Filter'
-import axios from 'axios'
 import NumberService from './NumberService'
+import Notification from './Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilterName] = useState('')
+  const [notification, setNotification] = useState(null)
 
 
   useEffect(() => {
@@ -34,10 +35,15 @@ const App = () => {
         NumberService
         .update(id, nameObject)
         .then(phoneNumbers => {
-          console.log(newName)
           setPersons(persons.map(person => person.name !== newName ? person : phoneNumbers))
           setNewName('')
           setNewNumber('')
+        })
+        .catch(error => {
+          setNotification(`Error ${newName} has already been removed from server `)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
       }
     }
@@ -50,6 +56,10 @@ const App = () => {
       setPersons(persons.concat(returnedNumbers))
       setNewName('')
       setNewNumber('')
+      setNotification(`Added ${newName}`)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
     })
     }
   }
@@ -79,7 +89,6 @@ const App = () => {
     const keyword = event.target.value
     setFilterName(keyword)
     
-    
     if(keyword !== '') {
       const results = persons.filter((name) => {
         return name.name.toLowerCase().startsWith(keyword.toLowerCase())
@@ -101,10 +110,12 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <h3>Filter</h3>
       <Filter filterName={filterName} handleFilter={handleFilter}/>
       <h3>Add a new person</h3>
      <PersonForm newName = {newName} newNumber={newNumber} addName={addName} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange}/>
+      
       <h3>Numbers</h3>
       <Persons persons={persons} deleteName={deleteName}  />
     </div>
