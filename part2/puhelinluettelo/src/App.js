@@ -65,7 +65,9 @@ const App = () => {
   }
 
   const deleteName = (event) => {
-    const value = parseInt(event.target.value)    
+    
+    const value = event.target.value
+    console.log(event.target)
     const name = persons.filter(search => search.id === value).map(filt => filt.name)
     
     if(window.confirm(`Delete ${name}?`)) {
@@ -87,13 +89,23 @@ const App = () => {
 
   const handleFilter = (event) => {
     const keyword = event.target.value
+      
     setFilterName(keyword)
+  
     
     if(keyword !== '') {
-      const results = persons.filter((name) => {
-        return name.name.toLowerCase().startsWith(keyword.toLowerCase())
+
+      NumberService
+      .getAll()
+      .then(returnedNumbers => {
+        const results = returnedNumbers.filter((name) => {
+          return name.name.toLowerCase().startsWith(keyword.toLowerCase())
+        })
+        
+        setPersons(results)
+
       })
-      setPersons(results)
+      
     }
     else {
       NumberService
